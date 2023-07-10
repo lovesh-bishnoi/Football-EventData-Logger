@@ -6,11 +6,10 @@ ddbtable = dynamodb.Table('TEST-SportsEvents')
 
 def lambda_handler(event, context):
     try:
-        # Extract the event ID from the path parameter
-        event_id = event['pathParameters']['event_id']
-        # timestamp = '2023-06-22T19:45:30Z'
+        # Extract the event ID from the path parameter of API Gateway
+        event_id = event['pathParameters']['event_id']       
 
-        # Retrieve the event from DynamoDB
+        # Retrieve the particular event_id data from DynamoDB
         retrieve_single_event_details = ddbtable.get_item(Key={'event_id': event_id})
 
         # Check if the event exists in DynamoDB
@@ -25,7 +24,7 @@ def lambda_handler(event, context):
                 }, indent=4)
             }
         else:
-            # Return the event not found response
+            # Return the error response if the event_id is not found in DynamoDB
             response = {
                 'statusCode': 404,
                 'body': json.dumps({
@@ -42,7 +41,7 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'statusCode': 500,
                 'status': 'error',
-                'message': 'Failed to retrieve theevent.'
+                'message': 'Failed to retrieve the event.'
             }, indent=4)
         }
 

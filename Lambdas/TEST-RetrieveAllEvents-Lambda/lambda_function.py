@@ -9,7 +9,7 @@ def lambda_handler(event, context):
         # Query DynamoDB to retrieve all events
         retrieve_all_events_details = ddbtable.scan()
 
-        # Return the success response
+        # Return the success response with list of all Sport Events
         response = {
             'statusCode': 200,
             'body': json.dumps({

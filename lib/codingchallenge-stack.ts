@@ -13,11 +13,11 @@ export class CodingChallengeStack extends cdk.Stack {
 
     // Create a dynamoDB table to store the Sports log events sent from Lambda function using API gateway
     new dynamodb.Table(this, 'SportsEventsTable', {
+      tableName: 'TEST-SportsEvents',
       partitionKey: {
         name: 'event_id',
         type: dynamodb.AttributeType.STRING
       },
-      tableName: 'TEST-SportsEvents',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
@@ -58,12 +58,11 @@ export class CodingChallengeStack extends cdk.Stack {
     // Create a Lambda function to get single event data in API Gateway from the DynamoDB Table
     const single_event_lambda = new lambda.Function(this, 'RetrieveSingleEventsLambdaFunction', {
       runtime: lambda.Runtime.PYTHON_3_8,
-      functionName: "TEST-RetrieveSingleEvents-Lambda",
+      functionName: "TEST-RetrieveSingleEvent-Lambda",
       handler: 'lambda_function.lambda_handler',
-      code: lambda.Code.fromAsset('Lambdas/TEST-RetrieveSingleEvents-Lambda'),
+      code: lambda.Code.fromAsset('Lambdas/TEST-RetrieveSingleEvent-Lambda'),
       role: LambdaRole,
     });
-
 
     // ----------------------------------------------API GATEWAY------------------------------------------------------
 

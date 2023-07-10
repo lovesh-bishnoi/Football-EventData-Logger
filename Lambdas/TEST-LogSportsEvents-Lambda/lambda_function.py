@@ -7,7 +7,7 @@ ddbtable = dynamodb.Table('TEST-SportsEvents')
 
 def lambda_handler(event, context):
     try:
-        # Parse the JSON payload from the API Gateway Test Body
+        # Parse the JSON payload from the API Gateway Test response body
         api_payload = json.loads(event['body'])
 
         # Generate a unique event ID
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
                     }
                 }
      
-        # Save the item to DynamoDB Table
+        # Put the item to DynamoDB Table
         ddbtable.put_item(Item=item)
 
         # Return the success response after putting the item into DynamoDB Table
