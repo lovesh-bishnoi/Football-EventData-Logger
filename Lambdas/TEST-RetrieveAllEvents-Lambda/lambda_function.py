@@ -1,45 +1,54 @@
 import json
 import boto3
+import os
+from boto3.dynamodb.conditions import Key
+
+DDB_TABLE_NAME = os.getenv("DDB_TABLE_NAME")
 
 dynamodb = boto3.resource('dynamodb')
-ddbtable = dynamodb.Table('TEST-SportsEvents')
+ddbtable = dynamodb.Table(DDB_TABLE_NAME)
 
 def lambda_handler(event, context):
     try:
-        # Query DynamoDB to retrieve all events
-        retrieve_all_events_details = ddbtable.scan()
+        # Extract the Match ID from the path parameter of API Gateway
+        match_id = event['pathParameters']['match_id']      
 
-        # Check if the event exists in DynamoDB
-        if 'Item' in retrieve_all_events_details:
+        # Retrieve all events details of a particular match from DynamoDB
+        retrieve_all_events_details = ddbtable.query(
+            IndexName="match_idGSI",
+            KeyConditionExpression=Key('match_id').eq(match_id),
+            ScanIndexForward=False,
+            Limit=5,
+            )['Items'] 
 
-            # Return the success response with list of all Sport Events
+        # Check if the match_id exists in DynamoDB
+        if len(retrieve_all_events_details) > 0:
+
+            # Return the success response
             response = {
                 'statusCode': 200,
                 'body': json.dumps({
                     'status': 'success',
-                    'events': retrieve_all_events_details['Items']
+                    'match_events': retrieve_all_events_details
                 }, indent=4)
             }
         else:
-            # Return the error response not even 1 event is not found in DynamoDB
+            # Return the error response if the match_id is not found in DynamoDB
             response = {
                 'statusCode': 404,
                 'body': json.dumps({
                     'status': 'error',
-                    'message': 'Event not found.'
+                    'message': 'No Match found.'
                 }, indent=4)
-            }     
+            }
 
     except Exception as e:
-        print('Error retrieving events:', str(e))
-
-        # Return the error response
+        # Return the error response with exception
         response = {
-            'statusCode': 500,
             'body': json.dumps({
+                'statusCode': 500,
                 'status': 'error',
-                'message': 'Failed to retrieve all events.'
+                'message': 'Failed to retrieve the match events: ' + str(e),
             }, indent=4)
         }
-
     return response

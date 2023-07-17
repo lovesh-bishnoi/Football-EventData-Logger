@@ -1,8 +1,12 @@
 import json
 import boto3
+import os
+from boto3.dynamodb.conditions import Key
+
+DDB_TABLE_NAME = os.getenv("DDB_TABLE_NAME")
 
 dynamodb = boto3.resource('dynamodb')
-ddbtable = dynamodb.Table('TEST-SportsEvents')
+ddbtable = dynamodb.Table(DDB_TABLE_NAME)
 
 def lambda_handler(event, context):
     try:
@@ -10,17 +14,19 @@ def lambda_handler(event, context):
         event_id = event['pathParameters']['event_id']       
 
         # Retrieve the particular event_id data from DynamoDB
-        retrieve_single_event_details = ddbtable.get_item(Key={'event_id': event_id})
+        retrieve_single_event_details = ddbtable.query(
+            KeyConditionExpression=Key('event_id').eq(event_id),
+            ScanIndexForward=False)['Items']
 
-        # Check if the event exists in DynamoDB
-        if 'Item' in retrieve_single_event_details:
+        # Check if the event_id exists in DynamoDB
+        if len(retrieve_single_event_details) > 0:
 
             # Return the success response
             response = {
                 'statusCode': 200,
                 'body': json.dumps({
                     'status': 'success',
-                    'event': retrieve_single_event_details['Item']
+                    'event': retrieve_single_event_details
                 }, indent=4)
             }
         else:
@@ -29,20 +35,17 @@ def lambda_handler(event, context):
                 'statusCode': 404,
                 'body': json.dumps({
                     'status': 'error',
-                    'message': 'Event not found.'
+                    'message': 'No event found.'
                 }, indent=4)
             }
 
     except Exception as e:
-        print('Error retrieving event:', str(e))
-
-        # Return the error response
+        # Return the error response with exception
         response = {
             'body': json.dumps({
                 'statusCode': 500,
                 'status': 'error',
-                'message': 'Failed to retrieve the event.'
+                'message': 'Failed to retrieve the event: ' + str(e),
             }, indent=4)
         }
-
     return response
