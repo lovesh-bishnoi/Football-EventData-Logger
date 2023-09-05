@@ -49,7 +49,7 @@ export class CodingChallengeStack extends cdk.Stack {
       handler: 'lambda_function.lambda_handler',
       role: lambdarole,
       environment: {
-        DDB_TABLE_NAME: table.tableName
+        DYNAMODB_TABLE_NAME: table.tableName
       },
     }
 

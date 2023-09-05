@@ -9,10 +9,10 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-DDB_TABLE_NAME = os.getenv("DDB_TABLE_NAME")
+DYNAMODB_TABLE_NAME = os.getenv("DYNAMODB_TABLE_NAME")
 
 dynamodb = boto3.resource('dynamodb')
-ddbtable = dynamodb.Table(DDB_TABLE_NAME)
+ddbtable = dynamodb.Table(DYNAMODB_TABLE_NAME)
 
 def lambda_handler(event, context):
     try:
